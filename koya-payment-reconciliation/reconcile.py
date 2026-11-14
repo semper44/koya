@@ -7,10 +7,12 @@ Run:  python3 reconcile.py
 import json
 from datetime import datetime
 from decimal import Decimal, ROUND_HALF_UP
+from pathlib import Path
 
 latest_attempts = {}
+data_dir = Path(__file__).resolve().parent
 
-with open("payments.jsonl", encoding="utf-8", errors="replace") as payments:
+with open(data_dir / "payments.jsonl", encoding="utf-8", errors="replace") as payments:
     for line in payments:
         try:
             event = json.loads(line)
@@ -33,7 +35,7 @@ for _, event in latest_attempts.values():
         count += 1
         total += Decimal(str(event["amount"]).replace(",", ""))
 
-with open("expected.txt", encoding="utf-8") as expected_file:
+with open(data_dir / "expected.txt", encoding="utf-8") as expected_file:
     expected = int(expected_file.read().strip())
 
 if count != expected:
@@ -42,4 +44,4 @@ if count != expected:
 else:
     rounded_total = total.quantize(Decimal("1"), rounding=ROUND_HALF_UP)
     print(f"Check passed: {count} successful payments.")
-    print(f"Your code: KOYA-{rounded_total}")
+    print(f"code: KOYA-{rounded_total}")
